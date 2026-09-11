@@ -1,8 +1,6 @@
-
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-
 
 
 class Phase(Enum):
@@ -40,3 +38,11 @@ def phase_end(started_at: datetime, phase: Phase, settings: Settings) -> datetim
     return started_at + timedelta(minutes=minutes)
 
 
+def time_left(ends_at: datetime, now: datetime) -> timedelta:
+    return max(ends_at - now, timedelta(0))
+
+
+def progress(started_at: datetime, ends_at: datetime, now: datetime) -> float:
+    total = ends_at - started_at
+    passed = now - started_at
+    return min(max(passed / total, 0.0), 1.0)
