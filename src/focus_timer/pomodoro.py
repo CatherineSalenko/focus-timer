@@ -1,6 +1,9 @@
 
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import Enum
+
+
 
 class Phase(Enum):
     WORK = "work"
@@ -16,7 +19,7 @@ class Settings:
     pomodoros_until_long_break: int = 4
 
 
-def phase_duration_minutes(phase: Phase, settings: Settings)-> int:
+def phase_duration_minutes(phase: Phase, settings: Settings) -> int:
     if phase is Phase.WORK:
         return settings.work_minutes
     if phase is Phase.SHORT_BREAK:
@@ -32,8 +35,8 @@ def next_phase(current: Phase, completed_pomodoros: int, settings: Settings) -> 
     return Phase.SHORT_BREAK
 
 
-
-
-
+def phase_end(started_at: datetime, phase: Phase, settings: Settings) -> datetime:
+    minutes = phase_duration_minutes(phase, settings)
+    return started_at + timedelta(minutes=minutes)
 
 

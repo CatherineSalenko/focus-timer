@@ -1,4 +1,6 @@
+from datetime import datetime, timedelta
 from focus_timer.pomodoro import Phase, Settings, next_phase, phase_duration_minutes
+from focus_timer.pomodoro import phase_end
 
 
 def test_after_pomodoro_short_break():
@@ -16,4 +18,5 @@ def test_after_short_break_goes_to_work():
 def test_after_long_break_goes_to_work():
     assert phase_duration_minutes(Phase.WORK, Settings()) == 25
 
-
+def test_phase_end ():
+    assert phase_end(datetime(2026, 9, 11, 12, 0), Phase.WORK, Settings()) == datetime(2026, 9, 11, 12, 25)
