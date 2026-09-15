@@ -3,10 +3,12 @@ from datetime import datetime, timedelta
 from focus_timer.pomodoro import (
     Phase,
     Settings,
+    advance,
     next_phase,
     phase_duration_minutes,
     phase_end,
     progress,
+    start_session,
     time_left,
 )
 
@@ -56,3 +58,27 @@ def test_progress_never_above_one():
     ends_at = datetime(2026, 9, 11, 12, 25)
     now = datetime(2026, 9, 11, 12, 30)
     assert progress(started_at, ends_at, now) == 1.0
+
+
+def test_new_session_starts_with_work():
+    now = datetime(2026, 9, 11, 12, 0)
+    session = start_session(Settings(), now)
+    assert session.phase is Phase.WORK
+    assert session.started_at == now
+    assert session.completed_pomodoros == 0
+
+
+def test_after_work_comes_break_and_pomodoro_counted():
+    now = datetime(2026, 9, 11, 12, 0)
+    session = start_session(Settings(), now)
+    next_session = advance(session, now)
+    assert next_session.phase is Phase.SHORT_BREAK
+    assert next_session.started_at == now
+    assert next_session.completed_pomodoros == 1
+
+
+def test_after_break_pomodoro_count_unchanged():
+    now = datetime(2026, 9, 11, 12, 0)
+    session = advance(advance(start_session(Settings(), now), now), now)
+    assert session.phase is Phase.WORK
+    assert session.completed_pomodoros == 1

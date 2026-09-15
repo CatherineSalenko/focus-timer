@@ -17,6 +17,14 @@ class Settings:
     pomodoros_until_long_break: int = 4
 
 
+@dataclass(frozen=True)
+class Session:
+    settings: Settings
+    phase: Phase
+    started_at: datetime
+    completed_pomodoros: int = 0
+
+
 def phase_duration_minutes(phase: Phase, settings: Settings) -> int:
     if phase is Phase.WORK:
         return settings.work_minutes
@@ -35,6 +43,7 @@ def next_phase(current: Phase, completed_pomodoros: int, settings: Settings) -> 
 
 def phase_end(started_at: datetime, phase: Phase, settings: Settings) -> datetime:
     minutes = phase_duration_minutes(phase, settings)
+
     return started_at + timedelta(minutes=minutes)
 
 
@@ -45,4 +54,22 @@ def time_left(ends_at: datetime, now: datetime) -> timedelta:
 def progress(started_at: datetime, ends_at: datetime, now: datetime) -> float:
     total = ends_at - started_at
     passed = now - started_at
+
     return min(max(passed / total, 0.0), 1.0)
+
+
+def start_session(settings: Settings, now: datetime) -> Session:
+    return Session(settings=settings, phase=Phase.WORK, started_at=now)
+
+
+def advance(session: Session, now: datetime) -> Session:
+    completed = session.completed_pomodoros
+    if session.phase is Phase.WORK:
+        completed += 1
+
+    return Session(
+        settings=session.settings,
+        phase=next_phase(session.phase, completed, session.settings),
+        started_at=now,
+        completed_pomodoros=completed,
+    )
