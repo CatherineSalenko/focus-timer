@@ -23,6 +23,9 @@ class Session:
     phase: Phase
     started_at: datetime
     completed_pomodoros: int = 0
+    paused_at: datetime | None = None
+    paused_total: timedelta = timedelta(0)
+
 
 
 def phase_duration_minutes(phase: Phase, settings: Settings) -> int:

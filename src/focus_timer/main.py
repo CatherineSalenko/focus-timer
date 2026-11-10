@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 from focus_timer.pomodoro import (
     Session,
     Settings,
+    advance,
     phase_end,
     progress,
     start_session,
@@ -53,3 +54,15 @@ def get_session():
         "seconds_left": time_left(ends_at, now).total_seconds(),
         "progress": progress(current_session.started_at, ends_at, now),
     }
+
+
+@app.post("/api/session/advance")
+def advance_session():
+    """Перейти к следующей фазе."""
+    global current_session
+    if current_session is None:
+        raise HTTPException(status_code=404, detail="Сессия не запущена")
+
+    current_session = advance(current_session, datetime.now(timezone.utc))
+    return current_session
+
